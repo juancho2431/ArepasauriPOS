@@ -1,0 +1,92 @@
+.compras-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  font-family: sans-serif;
+}
+
+.seccion-compras {
+  margin-bottom: 30px;
+}
+
+.card {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.formulario select,
+.formulario input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border 0.3s;
+}
+
+.formulario input:focus,
+.formulario select:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+button {
+  padding: 10px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.mensaje-exito {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.mensaje-error {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 600px) {
+  .formulario {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .formulario select,
+  .formulario input {
+    flex: 1;
+  }
+
+  .formulario button {
+    flex-shrink: 0;
+  }
+}

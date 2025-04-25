@@ -1,0 +1,208 @@
+/* ========== ESTILOS GENERALES ========== */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2 {
+  text-align: center;
+  margin: 20px 0;
+  color: #333;
+}
+
+/* ========== CONTENEDORES ========== */
+.container,
+.contenedor {
+  width: 90%;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* ========== TABLA ========== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+td {
+  background-color: #fdfdfd;
+}
+
+tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+tr:hover td {
+  background-color: #f1f1f1;
+}
+
+/* ========== FORMULARIO Y CAMPOS ========== */
+input[type="text"],
+input[type="number"],
+select {
+  padding: 10px;
+  margin: 5px 0;
+  width: calc(100% - 22px);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+/* ========== BOTONES ========== */
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button.delete {
+  background-color: #f44336;
+}
+
+button.delete:hover {
+  background-color: #d32f2f;
+}
+
+button.edit {
+  background-color: #ff9800;
+}
+
+button.edit:hover {
+  background-color: #e68900;
+}
+
+button.cancelar {
+  background-color: #6c757d;
+}
+
+button.cancelar:hover {
+  background-color: #555;
+}
+
+button.primary {
+  background-color: #2196F3;
+}
+
+button.primary:hover {
+  background-color: #0b7dda;
+}
+
+/* ========== ACCIONES EN FILA ========== */
+.table-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+/* ========== FORMULARIO AGREGAR ========== */
+.add-form {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f4f4f4;
+  border-radius: 8px;
+}
+
+.add-form input,
+.add-form select {
+  margin-bottom: 15px;
+  display: block;
+  width: 100%;
+}
+
+.add-form button {
+  margin-top: 10px;
+}
+
+/* ========== BUSCADOR ========== */
+.buscador {
+  padding: 10px;
+  margin: 20px 0;
+  width: 100%;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+/* ========== MENSAJES Y ERRORES ========== */
+.error {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.sin-resultados {
+  text-align: center;
+  padding: 12px;
+  color: #777;
+  font-style: italic;
+}
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.tab {
+  padding: 10px 20px;
+  background-color: #e5e5e5;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.tab:hover {
+  background-color: #d4d4d4;
+}
+
+.tab.active {
+  background-color: #4CAF50;
+  color: white;
+}
