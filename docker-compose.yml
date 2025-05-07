@@ -39,7 +39,6 @@ services:
       - ./frontend/.env
     volumes:
       - ./frontend:/app
-      - /app/node_modules  # Evitar problemas de permisos con node_modules
     stdin_open: true
     tty: true
 
