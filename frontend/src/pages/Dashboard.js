@@ -11,7 +11,7 @@ import {
 } from "recharts";
 
 const Dashboard = () => {
-  const apiUrl = "http://localhost:3000/api"; // Ajusta esto si tu backend está en otro lugar
+  const apiUrl = "http://ec2-3-214-227-150.compute-1.amazonaws.com:3000/api"; // Ajusta esto si tu backend está en otro lugar
 
   // Estado para el reporte de ventas
   const [salesData, setSalesData] = useState([]);
