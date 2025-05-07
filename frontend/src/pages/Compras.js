@@ -1,17 +1,26 @@
+// src/components/Compras.js
+
 import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
 import axios from 'axios';
 import '../styles/Compras.css';
 
 const Compras = () => {
+  // Estados para datos
   const [ingredientes, setIngredientes] = useState([]);
   const [bebidas, setBebidas] = useState([]);
-  const [stockIngrediente, setStockIngrediente] = useState({ id: '', cantidad: '' });
-  const [stockBebida, setStockBebida] = useState({ id: '', cantidad: '' });
+
+  // Estados para selección y cantidad
+  const [stockIngrediente, setStockIngrediente] = useState({ id: null, cantidad: '' });
+  const [stockBebida, setStockBebida] = useState({ id: null, cantidad: '' });
+
+  // Mensajes de éxito / error
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
+  // Al montar, carga ingredientes y bebidas
   useEffect(() => {
     obtenerIngredientes();
     obtenerBebidas();
@@ -19,26 +28,30 @@ const Compras = () => {
 
   const obtenerIngredientes = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/ingredientes`);
-      setIngredientes(response.data);
-    } catch (error) {
-      console.error('Error al obtener ingredientes:', error);
+      const { data } = await axios.get(`${apiUrl}/api/ingredientes`);
+      setIngredientes(data);
+    } catch (err) {
+      console.error('Error al obtener ingredientes:', err);
+      setError('No se pudieron cargar los ingredientes.');
     }
   };
 
   const obtenerBebidas = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/bebidas`);
-      setBebidas(response.data);
-    } catch (error) {
-      console.error('Error al obtener bebidas:', error);
+      const { data } = await axios.get(`${apiUrl}/api/bebidas`);
+      setBebidas(data);
+    } catch (err) {
+      console.error('Error al obtener bebidas:', err);
+      setError('No se pudieron cargar las bebidas.');
     }
   };
 
   const mostrarMensaje = (msg, isError = false) => {
-    if (isError) setError(msg);
-    else setMensaje(msg);
-
+    if (isError) {
+      setError(msg);
+    } else {
+      setMensaje(msg);
+    }
     setTimeout(() => {
       setMensaje('');
       setError('');
@@ -49,22 +62,17 @@ const Compras = () => {
     try {
       const { id, cantidad } = stockIngrediente;
       if (!id || !cantidad || parseFloat(cantidad) <= 0) {
-        mostrarMensaje('Por favor selecciona un ingrediente y una cantidad válida.', true);
-        return;
+        return mostrarMensaje('Selecciona un ingrediente y cantidad válidos.', true);
       }
-
-      const ingrediente = ingredientes.find((ing) => ing.ingredient_id === parseInt(id));
-      if (!ingrediente) return mostrarMensaje('Ingrediente no encontrado.', true);
-
-      const nuevoStock = ingrediente.stock_current + parseFloat(cantidad);
-
+      const ing = ingredientes.find(i => i.ingredient_id === id);
+      const nuevoStock = ing.stock_current + parseFloat(cantidad);
       await axios.put(`${apiUrl}/api/ingredientes/${id}`, { stock_current: nuevoStock });
-      mostrarMensaje(`Stock actualizado correctamente para ${ingrediente.name}.`);
+      mostrarMensaje(`Stock de "${ing.name}" actualizado.`);
       obtenerIngredientes();
-      setStockIngrediente({ id: '', cantidad: '' });
-    } catch (error) {
-      console.error('Error al actualizar ingrediente:', error);
-      mostrarMensaje('Error al actualizar el stock del ingrediente.', true);
+      setStockIngrediente({ id: null, cantidad: '' });
+    } catch (err) {
+      console.error(err);
+      mostrarMensaje('Error actualizando stock de ingrediente.', true);
     }
   };
 
@@ -72,51 +80,56 @@ const Compras = () => {
     try {
       const { id, cantidad } = stockBebida;
       if (!id || !cantidad || parseFloat(cantidad) <= 0) {
-        mostrarMensaje('Por favor selecciona una bebida y una cantidad válida.', true);
-        return;
+        return mostrarMensaje('Selecciona una bebida y cantidad válidos.', true);
       }
-
-      const bebida = bebidas.find((b) => b.bebida_id === parseInt(id));
-      if (!bebida) return mostrarMensaje('Bebida no encontrada.', true);
-
-      const nuevoStock = bebida.stock + parseFloat(cantidad);
-
+      const beb = bebidas.find(b => b.bebida_id === id);
+      const nuevoStock = beb.stock + parseFloat(cantidad);
       await axios.put(`${apiUrl}/api/bebidas/${id}`, { stock: nuevoStock });
-      mostrarMensaje(`Stock actualizado correctamente para ${bebida.name}.`);
+      mostrarMensaje(`Stock de "${beb.name}" actualizado.`);
       obtenerBebidas();
-      setStockBebida({ id: '', cantidad: '' });
-    } catch (error) {
-      console.error('Error al actualizar bebida:', error);
-      mostrarMensaje('Error al actualizar el stock de la bebida.', true);
+      setStockBebida({ id: null, cantidad: '' });
+    } catch (err) {
+      console.error(err);
+      mostrarMensaje('Error actualizando stock de bebida.', true);
     }
   };
+
+  // Construye las opciones para react-select
+  const opcionesIngredientes = ingredientes.map(ing => ({
+    value: ing.ingredient_id,
+    label: ing.name
+  }));
+  const opcionesBebidas = bebidas.map(beb => ({
+    value: beb.bebida_id,
+    label: beb.name
+  }));
 
   return (
     <div className="container compras-container">
       <h2>🛒 Gestión de Compras</h2>
-
       {mensaje && <p className="mensaje-exito">{mensaje}</p>}
       {error && <p className="mensaje-error">{error}</p>}
 
+      {/* SECCIÓN INGREDIENTES */}
       <div className="card seccion-compras">
         <h3>Ingredientes</h3>
         <div className="formulario">
-          <select
-            value={stockIngrediente.id}
-            onChange={(e) => setStockIngrediente({ ...stockIngrediente, id: e.target.value })}
-          >
-            <option value="">Selecciona un ingrediente</option>
-            {ingredientes.map((ing) => (
-              <option key={ing.ingredient_id} value={ing.ingredient_id}>
-                {ing.name}
-              </option>
-            ))}
-          </select>
+          <Select
+            options={opcionesIngredientes}
+            placeholder="Selecciona un ingrediente..."
+            isSearchable
+            value={opcionesIngredientes.find(o => o.value === stockIngrediente.id) || null}
+            onChange={opt =>
+              setStockIngrediente({ ...stockIngrediente, id: opt ? opt.value : null })
+            }
+            className="react-select-container"
+            classNamePrefix="react-select"
+          />
           <input
             type="number"
             placeholder="Cantidad a añadir"
             value={stockIngrediente.cantidad}
-            onChange={(e) =>
+            onChange={e =>
               setStockIngrediente({ ...stockIngrediente, cantidad: e.target.value })
             }
           />
@@ -129,25 +142,26 @@ const Compras = () => {
         </div>
       </div>
 
+      {/* SECCIÓN BEBIDAS */}
       <div className="card seccion-compras">
         <h3>Bebidas</h3>
         <div className="formulario">
-          <select
-            value={stockBebida.id}
-            onChange={(e) => setStockBebida({ ...stockBebida, id: e.target.value })}
-          >
-            <option value="">Selecciona una bebida</option>
-            {bebidas.map((beb) => (
-              <option key={beb.bebida_id} value={beb.bebida_id}>
-                {beb.name}
-              </option>
-            ))}
-          </select>
+          <Select
+            options={opcionesBebidas}
+            placeholder="Selecciona una bebida..."
+            isSearchable
+            value={opcionesBebidas.find(o => o.value === stockBebida.id) || null}
+            onChange={opt =>
+              setStockBebida({ ...stockBebida, id: opt ? opt.value : null })
+            }
+            className="react-select-container"
+            classNamePrefix="react-select"
+          />
           <input
             type="number"
             placeholder="Cantidad a añadir"
             value={stockBebida.cantidad}
-            onChange={(e) =>
+            onChange={e =>
               setStockBebida({ ...stockBebida, cantidad: e.target.value })
             }
           />
