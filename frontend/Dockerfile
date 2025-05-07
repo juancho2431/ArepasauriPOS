@@ -1,20 +1,38 @@
-# 1️⃣ Imagen base de Node para construir el frontend
-FROM node:18
+# syntax=docker/dockerfile:1
 
-# 2️⃣ Directorio de trabajo dentro del contenedor
+# -----------------------------
+# Stage 1: Build the React app
+# -----------------------------
+FROM node:18 AS builder
+
+# Set working directory
 WORKDIR /app
 
-# 3️⃣ Copiar archivos de dependencias
+# Copy package manifests and install dependencies
 COPY package*.json ./
+RUN npm ci
 
-# 4️⃣ Instalar dependencias
-RUN npm install
-
-# 5️⃣ Copiar el resto del código
+# Copy source code and build
 COPY . .
+RUN npm run build
 
-# 6️⃣ Exponer el puerto en el que corre React
-EXPOSE 3001
 
-# 7️⃣ Iniciar la app
-CMD ["npm", "start"]
+# -----------------------------
+# Stage 2: Serve static files
+# -----------------------------
+FROM node:18-alpine
+
+# Install a simple static server
+RUN npm install -g serve
+
+# Set working directory
+WORKDIR /app
+
+# Copy built assets from builder
+COPY --from=builder /app/build ./build
+
+# Expose port to the outside
+EXPOSE 3000
+
+# Start the server
+CMD ["serve", "-s", "build", "-l", "3000"]
