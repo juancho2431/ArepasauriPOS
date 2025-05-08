@@ -1,15 +1,21 @@
+// src/pages/Facturacion.js
+
 import React, { useState, useEffect, useCallback } from 'react';
+import Select from 'react-select';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/Facturacion.css';
 
 const Facturacion = () => {
-  const [ventas, setVentas] = useState([]);
+  // Datos maestros
   const [productos, setProductos] = useState([]);
   const [bebidas, setBebidas] = useState([]);
-  const [ingredientes, setIngredientes] = useState([]);
+  const [empleados, setEmpleados] = useState([]);
+  const [ventasHistorial, setVentasHistorial] = useState([]);
+
+  // Carrito y totales
   const [carrito, setCarrito] = useState(() => {
     const saved = localStorage.getItem('carrito');
     return saved ? JSON.parse(saved) : [];
@@ -18,290 +24,313 @@ const Facturacion = () => {
     const saved = localStorage.getItem('total');
     return saved ? parseFloat(saved) : 0;
   });
+
+  // Datos de venta
   const [cliente, setCliente] = useState('');
   const [metodoPago, setMetodoPago] = useState('Efectivo');
-  const [empleados, setEmpleados] = useState([]);
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState('');
 
-  const apiUrl = process.env.REACT_APP_API_URL;
-
+  // Modal de ingredientes
   const [showIngredientsModal, setShowIngredientsModal] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [selectedIngredients, setSelectedIngredients] = useState([]);
+  const [cantidadProductos, setCantidadProductos] = useState(1);
 
-  const formatPrice = (price) => price.toLocaleString('es-CO');
+  // Selects buscables
+  const [selectedProductoOption, setSelectedProductoOption] = useState(null);
+  const [selectedBebidaOption, setSelectedBebidaOption] = useState(null);
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+  // Persistir carrito y total
   useEffect(() => {
     localStorage.setItem('carrito', JSON.stringify(carrito));
     localStorage.setItem('total', total.toString());
   }, [carrito, total]);
 
+  // Fetchers
   const fetchProductos = useCallback(async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/productos`);
-      setProductos(response.data);
+      const { data } = await axios.get(`${apiUrl}/api/productos`);
+      setProductos(data);
     } catch {
-      toast.error('Error al obtener los productos');
+      toast.error('Error al obtener productos');
     }
   }, [apiUrl]);
 
   const fetchBebidas = useCallback(async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/bebidas`);
-      setBebidas(response.data);
+      const { data } = await axios.get(`${apiUrl}/api/bebidas`);
+      setBebidas(data);
     } catch {
-      toast.error('Error al obtener las bebidas');
-    }
-  }, [apiUrl]);
-
-  const fetchIngredientes = useCallback(async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/ingredientes`);
-      setIngredientes(response.data);
-    } catch {
-      toast.error('Error al obtener los ingredientes');
-    }
-  }, [apiUrl]);
-
-  const fetchVentas = useCallback(async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/ventas`);
-      setVentas(response.data);
-    } catch {
-      toast.error('Error al obtener las ventas');
+      toast.error('Error al obtener bebidas');
     }
   }, [apiUrl]);
 
   const fetchEmpleados = useCallback(async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/empleados/empleados`);
-      setEmpleados(response.data);
+      const { data } = await axios.get(`${apiUrl}/api/empleados/empleados`);
+      setEmpleados(data);
     } catch {
-      toast.error('Error al obtener los empleados');
+      toast.error('Error al obtener empleados');
+    }
+  }, [apiUrl]);
+
+  const fetchHistorial = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`${apiUrl}/api/ventas`);
+      setVentasHistorial(data);
+    } catch {
+      toast.error('Error al obtener historial de ventas');
     }
   }, [apiUrl]);
 
   useEffect(() => {
     fetchProductos();
     fetchBebidas();
-    fetchIngredientes();
-    fetchVentas();
     fetchEmpleados();
-  }, [fetchProductos, fetchBebidas, fetchIngredientes, fetchVentas, fetchEmpleados]);
+    fetchHistorial();
+  }, [fetchProductos, fetchBebidas, fetchEmpleados, fetchHistorial]);
 
-  const handleOpenIngredientsModal = (producto) => {
+  // Formateo de precios
+  const formatPrice = price => price.toLocaleString('es-CO');
+
+  // Opciones para react-select
+  const opcionesProductos = productos.map(p => ({
+    value: p.producto_id,
+    label: `${p.name} - $${formatPrice(p.price)}`,
+    data: p
+  }));
+  const opcionesBebidas = bebidas.map(b => ({
+    value: b.bebida_id,
+    label: `${b.name} - $${formatPrice(b.price)}`,
+    data: b
+  }));
+
+  // Abre modal de ingredientes
+  const handleOpenIngredientsModal = producto => {
     setCurrentProduct(producto);
-    const ingredientesProducto = producto.Ingredientes.map((ing) => ({
+    setCantidadProductos(1);
+    const ings = producto.Ingredientes.map(ing => ({
       ...ing,
       checked: true,
-      amount: ing.ProductoIngrediente.amount || 1,
+      amount: ing.ProductoIngrediente.amount || 1
     }));
-    setSelectedIngredients(ingredientesProducto);
+    setSelectedIngredients(ings);
     setShowIngredientsModal(true);
+    setSelectedProductoOption({
+      value: producto.producto_id,
+      label: `${producto.name} - $${formatPrice(producto.price)}`,
+      data: producto
+    });
   };
 
-  const handleToggleIngredient = (ingredientId) => {
-    setSelectedIngredients((prev) =>
-      prev.map((ing) =>
-        ing.ingredient_id === ingredientId ? { ...ing, checked: !ing.checked } : ing
+  // Toggle y cantidad en modal
+  const handleToggleIngredient = id => {
+    setSelectedIngredients(prev =>
+      prev.map(ing =>
+        ing.ingredient_id === id
+          ? { ...ing, checked: !ing.checked }
+          : ing
       )
     );
   };
 
-  const handleChangeAmount = (ingredientId, value) => {
-    setSelectedIngredients((prev) =>
-      prev.map((ing) =>
-        ing.ingredient_id === ingredientId
+  const handleChangeIngredientAmount = (id, value) => {
+    setSelectedIngredients(prev =>
+      prev.map(ing =>
+        ing.ingredient_id === id
           ? { ...ing, amount: parseFloat(value) || 1 }
           : ing
       )
     );
   };
 
-  const handleAddToCarrito = (item) => {
-    const idKey = item.type === 'producto' ? 'producto_id' : 'bebida_id';
-    const existing = carrito.find((i) => i[idKey] === item[idKey]);
+  // Agrega item al carrito
+  const handleAddToCarrito = item => {
+    const key = item.type === 'producto' ? 'producto_id' : 'bebida_id';
+    const existing = carrito.find(i => i[key] === item[key]);
 
     if (existing) {
-      toast.info('Ya está en el carrito. Se incrementó la cantidad.');
-      const updated = carrito.map((i) =>
-        i[idKey] === item[idKey] ? { ...i, cantidad: (i.cantidad || 1) + 1 } : i
+      toast.info('Ítem ya en carrito, incrementando cantidad');
+      setCarrito(prev =>
+        prev.map(i =>
+          i[key] === item[key]
+            ? { ...i, cantidad: i.cantidad + item.cantidad }
+            : i
+        )
       );
-      setCarrito(updated);
     } else {
-      setCarrito([...carrito, { ...item, cantidad: 1 }]);
       toast.success('Agregado al carrito');
+      setCarrito(prev => [...prev, item]);
     }
-
-    setTotal((prev) => prev + item.price);
+    setTotal(prev => prev + item.price * item.cantidad);
   };
 
+  // Confirma selección de ingredientes y cantidad
   const handleConfirmIngredients = () => {
     if (!currentProduct) return;
-    const ingredientesSeleccionados = selectedIngredients
-      .filter((ing) => ing.checked && ing.amount > 0)
-      .map(({ ingredient_id, name, amount }) => ({ ingredient_id, name, amount }));
-
-    const productoConIngredientes = {
+    const ings = selectedIngredients
+      .filter(i => i.checked && i.amount > 0)
+      .map(({ ingredient_id, name, amount }) => ({
+        ingredient_id,
+        name,
+        amount
+      }));
+    const prodItem = {
       ...currentProduct,
       type: 'producto',
       producto_id: currentProduct.producto_id,
       bebida_id: null,
-      ingredientesSeleccionados,
+      ingredientesSeleccionados: ings,
+      cantidad: cantidadProductos,
+      price: currentProduct.price
     };
-
-    handleAddToCarrito(productoConIngredientes);
+    handleAddToCarrito(prodItem);
     setShowIngredientsModal(false);
+    setSelectedProductoOption(null);
   };
 
-  const handleRemoveFromCarrito = (index) => {
-    const item = carrito[index];
-    setTotal((prev) => prev - item.price * (item.cantidad || 1));
-    setCarrito(carrito.filter((_, i) => i !== index));
-    toast.warn('Eliminado del carrito');
-  };
-
-  const handleConfirmSale = async () => {
-    if (carrito.length === 0 || !cliente || !empleadoSeleccionado) {
-      toast.error('Complete todos los campos y agregue al menos un producto.');
-      return;
+  // Añadir bebida al carrito al seleccionar
+  useEffect(() => {
+    if (selectedBebidaOption) {
+      const beb = selectedBebidaOption.data;
+      handleAddToCarrito({
+        ...beb,
+        type: 'bebida',
+        bebida_id: beb.bebida_id,
+        cantidad: 1,
+        price: beb.price
+      });
+      setSelectedBebidaOption(null);
     }
+  }, [selectedBebidaOption]);
 
+  // Confirma la venta e imprime
+  const handleConfirmSale = async () => {
+    if (!cliente || !empleadoSeleccionado || carrito.length === 0) {
+      return toast.error('Complete todos los campos y agregue ítems.');
+    }
     const ventaData = {
       cliente,
       metodo_pago: metodoPago,
       vendedor_id: empleadoSeleccionado,
       fecha: new Date().toISOString(),
       total,
-      detalles: carrito.map((item) => ({
+      detalles: carrito.map(item => ({
         tipo_producto: item.type,
         producto_id: item.type === 'producto' ? item.producto_id : null,
         bebida_id: item.type === 'bebida' ? item.bebida_id : null,
         cantidad: item.cantidad,
         precio: item.price,
-        ingredientes: item.ingredientesSeleccionados || [],
-      })),
+        ingredientes: item.ingredientesSeleccionados || []
+      }))
     };
-
     try {
-      await axios.post(`${apiUrl}/api/ventas`, ventaData);
-      toast.success('Venta registrada exitosamente');
+      const resp = await axios.post(`${apiUrl}/api/ventas`, ventaData);
+      toast.success('Venta registrada');
       setCarrito([]);
       setTotal(0);
       setCliente('');
       setMetodoPago('Efectivo');
       setEmpleadoSeleccionado('');
-      fetchVentas();
-      fetchIngredientes();
+      fetchHistorial();
     } catch {
-      toast.error('Error al registrar la venta');
+      toast.error('Error al registrar venta');
     }
   };
 
   return (
     <div className="facturacion-container">
       <ToastContainer />
-  
+
       <h1>Facturación</h1>
-  
-      {/* Selección de productos y bebidas */}
-      <div className="productos-bebidas">
-        <div className="productos-list">
-          <h2>Productos</h2>
-          {productos.map((producto) => (
-            <div key={producto.producto_id} className="item">
-              <span>
-                {producto.name} - ${formatPrice(producto.price)}
-              </span>
-              <button onClick={() => handleOpenIngredientsModal(producto)}>
-                Seleccionar Ingredientes
-              </button>
-            </div>
-          ))}
+
+      {/* DROPDOWNS BUSCABLES */}
+      <div className="seleccion-opcional">
+        <div className="campo-select">
+          <label>Producto (opcional)</label>
+          <Select
+            options={opcionesProductos}
+            placeholder="Selecciona un producto..."
+            isSearchable
+            value={selectedProductoOption}
+            onChange={opt => opt ? handleOpenIngredientsModal(opt.data) : setSelectedProductoOption(null)}
+          />
         </div>
-  
-        <div className="bebidas-list">
-          <h2>Bebidas</h2>
-          {bebidas.map((bebida) => (
-            <div key={bebida.bebida_id} className="item">
-              <span>
-                {bebida.name} - ${formatPrice(bebida.price)}
-              </span>
-              <button
-                onClick={() =>
-                  handleAddToCarrito({ ...bebida, type: 'bebida', bebida_id: bebida.bebida_id })
-                }
-              >
-                Agregar
-              </button>
-            </div>
-          ))}
+        <div className="campo-select">
+          <label>Bebida (opcional)</label>
+          <Select
+            options={opcionesBebidas}
+            placeholder="Selecciona una bebida..."
+            isSearchable
+            value={selectedBebidaOption}
+            onChange={setSelectedBebidaOption}
+          />
         </div>
       </div>
-  
       {/* Carrito */}
       <div className="carrito">
-        <h2>Carrito de Compra</h2>
+        <h2>Carrito</h2>
         {carrito.length === 0 ? (
-          <p>No hay productos seleccionados</p>
+          <p>No hay ítems</p>
         ) : (
           <ul>
-            {carrito.map((item, index) => (
-              <li key={index}>
-                <strong>{item.name}</strong> x {item.cantidad} - ${formatPrice(item.price)}
-                {item.type === 'producto' &&
-                  item.ingredientesSeleccionados &&
-                  item.ingredientesSeleccionados.length > 0 && (
-                    <ul>
-                      {item.ingredientesSeleccionados.map((ing, i) => (
-                        <li key={i}>
-                          {ing.name} x {ing.amount}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                <button onClick={() => handleRemoveFromCarrito(index)}>Eliminar</button>
+            {carrito.map((item, i) => (
+              <li key={i}>
+                <strong>{item.name}</strong> x {item.cantidad} – ${formatPrice(item.price)}
+                {item.type === 'producto' && item.ingredientesSeleccionados?.length > 0 && (
+                  <ul>
+                    {item.ingredientesSeleccionados.map((ing, j) => (
+                      <li key={j}>
+                        {ing.name} x {ing.amount}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <button
+                  onClick={() => {
+                    setTotal(t => t - item.price * item.cantidad);
+                    setCarrito(c => c.filter((_, idx) => idx !== i));
+                    toast.warn('Ítem eliminado');
+                  }}
+                >
+                  Eliminar
+                </button>
               </li>
             ))}
           </ul>
         )}
-        <p>Total: ${formatPrice(total)}</p>
-  
-        {/* Datos de la venta */}
-        <div className="venta-datos">
-          <label>Cliente:</label>
-          <input
-            type="text"
-            value={cliente}
-            onChange={(e) => setCliente(e.target.value)}
-            placeholder="Nombre del cliente"
-          />
-          <label>Método de Pago:</label>
-          <select value={metodoPago} onChange={(e) => setMetodoPago(e.target.value)}>
-            <option value="Efectivo">Efectivo</option>
-            <option value="Nequi">Nequi</option>
-            <option value="Daviplata">Daviplata</option>
-            <option value="Transferencia">Transferencia</option>
-          </select>
-          <label>Empleado (Vendedor):</label>
-          <select
-            value={empleadoSeleccionado}
-            onChange={(e) => setEmpleadoSeleccionado(e.target.value)}
-          >
-            <option value="">Seleccione un empleado</option>
-            {empleados.map((empleado) => (
-              <option key={empleado.empleado_id} value={empleado.empleado_id}>
-                {empleado.nombre} {empleado.apellido}
-              </option>
-            ))}
-          </select>
-        </div>
-  
+        <p className="total">Total: ${formatPrice(total)}</p>
+      </div>
+
+      {/* Datos de la venta */}
+      <div className="venta-datos">
+        <input
+          type="text"
+          placeholder="Nombre del cliente"
+          value={cliente}
+          onChange={e => setCliente(e.target.value)}
+        />
+        <select value={metodoPago} onChange={e => setMetodoPago(e.target.value)}>
+          <option value="Efectivo">Efectivo</option>
+          <option value="Nequi">Nequi</option>
+          <option value="Daviplata">Daviplata</option>
+          <option value="Transferencia">Transferencia</option>
+        </select>
+        <select value={empleadoSeleccionado} onChange={e => setEmpleadoSeleccionado(e.target.value)}>
+          <option value="">Vendedor</option>
+          {empleados.map(emp => (
+            <option key={emp.empleado_id} value={emp.empleado_id}>
+              {emp.nombre} {emp.apellido}
+            </option>
+          ))}
+        </select>
         <button onClick={handleConfirmSale} disabled={carrito.length === 0}>
           Confirmar Venta
         </button>
       </div>
-  
+
       {/* Historial de Ventas */}
       <div className="ventas">
         <h2>Historial de Ventas</h2>
@@ -315,7 +344,7 @@ const Facturacion = () => {
             </tr>
           </thead>
           <tbody>
-            {ventas.map((venta) => (
+            {ventasHistorial.map(venta => (
               <tr key={venta.ventas_id}>
                 <td>{venta.ventas_id}</td>
                 <td>{new Date(venta.fecha).toLocaleString()}</td>
@@ -330,15 +359,14 @@ const Facturacion = () => {
           </tbody>
         </table>
       </div>
-  
+
       {/* Modal de ingredientes */}
       {showIngredientsModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>Seleccionar Ingredientes</h2>
-            <p>Producto: {currentProduct?.name}</p>
+            <h2>Ingredientes para {currentProduct.name}</h2>
             <div className="ingredientes-list">
-              {selectedIngredients.map((ing) => (
+              {selectedIngredients.map(ing => (
                 <div key={ing.ingredient_id} className="ingrediente-item">
                   <label>
                     <input
@@ -351,23 +379,36 @@ const Facturacion = () => {
                   <input
                     type="number"
                     min="1"
-                    step="1"
                     value={ing.amount}
-                    onChange={(e) => handleChangeAmount(ing.ingredient_id, e.target.value)}
+                    onChange={e => handleChangeIngredientAmount(ing.ingredient_id, e.target.value)}
                     placeholder="Cantidad"
                   />
                 </div>
               ))}
             </div>
             <div className="modal-actions">
-              <button onClick={handleConfirmIngredients}>Confirmar</button>
-              <button onClick={() => setShowIngredientsModal(false)}>Cerrar</button>
+              <label>Cantidad de productos:</label>
+              <input
+                type="number"
+                min="1"
+                value={cantidadProductos}
+                onChange={e => setCantidadProductos(parseInt(e.target.value, 10) || 1)}
+              />
+              <button onClick={handleConfirmIngredients}>Añadir al carrito</button>
+              <button
+                onClick={() => {
+                  setShowIngredientsModal(false);
+                  setSelectedProductoOption(null);
+                }}
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-  };
+};
 
 export default Facturacion;
