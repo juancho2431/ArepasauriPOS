@@ -139,14 +139,14 @@ function App() {
                     </PrivateRoute>
                   }
                 />
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>
           </>
         ) : (
           <Routes>
             <Route path="/login" element={<Login setAuthenticatedUser={setAuthenticatedUser} />} />
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         )}
       </div>

@@ -23,7 +23,7 @@ RUN npm run build
 FROM node:18-alpine
 
 # Install a simple static server
-RUN npm install -g serve
+RUN npm install -g serve@14.2.0
 
 # Set working directory
 WORKDIR /app
