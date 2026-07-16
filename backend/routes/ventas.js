@@ -14,6 +14,8 @@ router.get('/', async (req, res) => {
   console.log('Intentando obtener todas las ventas...');
   try {
     const ventas = await Ventas.findAll({
+      // Más reciente primero
+      order: [['fecha', 'DESC'], ['ventas_id', 'DESC']],
       include: [
         {
           model: VentaDetalle,
@@ -179,23 +181,41 @@ router.post('/', async (req, res) => {
 
         // Actualizar stock
         if (tipo_producto === 'producto') {
-          // Descontar ingredientes si existen
-          if (ingredientes && ingredientes.length > 0) {
-            for (const ing of ingredientes) {
-              const ingrediente = await Ingrediente.findByPk(ing.ingredient_id, { transaction });
-              if (!ingrediente) {
-                throw new Error(`Ingrediente con ID ${ing.ingredient_id} no encontrado`);
-              }
-              if (ingrediente.stock_current < ing.amount) {
-                throw new Error(`Stock insuficiente para el ingrediente: ${ingrediente.name}`);
-              }
-              await ingrediente.update(
-                {
-                  stock_current: ingrediente.stock_current - ing.amount,
-                },
-                { transaction }
-              );
+          // Lista de ingredientes a descontar: la enviada por el cliente
+          // (permite personalizar, ej. sin cebolla) o, si no llega, la
+          // receta base del producto. Así una venta NUNCA queda sin
+          // descontar inventario.
+          let listaIngredientes = ingredientes;
+          if (!listaIngredientes || listaIngredientes.length === 0) {
+            const producto = await Producto.findByPk(producto_id, {
+              include: [{ model: Ingrediente, as: 'Ingredientes' }],
+              transaction,
+            });
+            if (!producto) {
+              throw new Error(`Producto con ID ${producto_id} no encontrado`);
             }
+            listaIngredientes = (producto.Ingredientes || []).map((i) => ({
+              ingredient_id: i.ingredient_id,
+              amount: i.ProductoIngrediente?.amount || 1,
+            }));
+          }
+
+          for (const ing of listaIngredientes) {
+            const ingrediente = await Ingrediente.findByPk(ing.ingredient_id, { transaction });
+            if (!ingrediente) {
+              throw new Error(`Ingrediente con ID ${ing.ingredient_id} no encontrado`);
+            }
+            // El amount es por unidad de producto: multiplicar por la cantidad vendida
+            const aDescontar = ing.amount * cantidad;
+            if (ingrediente.stock_current < aDescontar) {
+              throw new Error(`Stock insuficiente para el ingrediente: ${ingrediente.name}`);
+            }
+            await ingrediente.update(
+              {
+                stock_current: ingrediente.stock_current - aDescontar,
+              },
+              { transaction }
+            );
           }
         } else if (tipo_producto === 'bebida') {
           // Buscar la bebida

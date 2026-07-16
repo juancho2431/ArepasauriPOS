@@ -79,7 +79,9 @@ const Facturacion = () => {
   const fetchHistorial = useCallback(async () => {
     try {
       const { data } = await axios.get(`${apiUrl}/api/ventas`);
-      setVentasHistorial(data);
+      // Más reciente primero (el backend ya ordena; esto asegura el orden en el cliente)
+      const ordenadas = [...data].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      setVentasHistorial(ordenadas);
     } catch {
       toast.error('Error al obtener historial de ventas');
     }

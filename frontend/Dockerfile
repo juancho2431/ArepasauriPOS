@@ -10,10 +10,17 @@ WORKDIR /app
 
 # Copy package manifests and install dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy source code and build
 COPY . .
+
+# URL del API: se pasa como build-arg desde docker-compose.
+# Las variables de entorno tienen prioridad sobre el archivo .env de CRA,
+# así el mismo Dockerfile sirve para local (localhost) y producción (dominio).
+ARG REACT_APP_API_URL=http://localhost:3000
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 RUN npm run build
 
 

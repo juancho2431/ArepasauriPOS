@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import './setupAxios'; // Configuración global de axios (token JWT + manejo de sesión expirada)
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

@@ -1,6 +1,6 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, NavLink, Navigate } from 'react-router-dom';
 import './App.css';
 import Dashboard from './pages/Dashboard';
 import Inventario from './pages/Inventario';
@@ -20,7 +20,6 @@ function App() {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
   useEffect(() => {
-    // Actualizar el estado cuando cambien los valores en localStorage
     setAuthenticatedUser(localStorage.getItem('authenticatedUser') || 'Usuario no definido');
     setUserRole(localStorage.getItem('userRole') || 'Desconocido');
   }, [isAuthenticated]);
@@ -29,7 +28,10 @@ function App() {
     setMenuOpen(!menuOpen);
   };
 
+  const closeMenu = () => setMenuOpen(false);
+
   const handleLogout = () => {
+    localStorage.removeItem('token');
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('authenticatedUser');
     localStorage.removeItem('userRole');
@@ -38,50 +40,71 @@ function App() {
     window.location.reload();
   };
 
+  // Clase del enlace según esté activo o no
+  const navClass = ({ isActive }) => (isActive ? 'nav-link active' : 'nav-link');
+
   return (
     <Router>
       <div className="app-container">
         {isAuthenticated ? (
           <>
-            <div className={`sidebar ${menuOpen ? 'open' : ''}`}>
+            <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
               <div className="logo-container">
-                <img src={logo} alt="Logo de la empresa" className="logo" />
+                <img src={logo} alt="Arepasaurios" className="logo" />
               </div>
-              <ul>
-                <li>
-                  <span style={{ color: 'black', fontSize: '18px' }}>Usuario: {authenticatedUser || 'Desconocido'} ({userRole || 'Sin rol'})</span>
-                </li>
-                <li>
-                  <Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-                </li>
-                <li>
-                  <Link to="/inventario" onClick={() => setMenuOpen(false)}>Inventario</Link>
-                </li>
-                {userRole !== 'Mesero' && userRole !== 'Empleado' && ( // Restringir acceso a Compras para Mesero y Empleado
-                  <li>
-                    <Link to="/compras" onClick={() => setMenuOpen(false)}>Compras</Link>
-                  </li>
+
+              <div className="user-chip">
+                <div className="user-avatar">
+                  {(authenticatedUser || '?').charAt(0).toUpperCase()}
+                </div>
+                <div className="user-info">
+                  <div className="user-name">{authenticatedUser || 'Desconocido'}</div>
+                  <div className="user-role">{userRole || 'Sin rol'}</div>
+                </div>
+              </div>
+
+              <nav>
+                <NavLink to="/" end className={navClass} onClick={closeMenu}>
+                  Dashboard
+                </NavLink>
+                <NavLink to="/inventario" className={navClass} onClick={closeMenu}>
+                  Inventario
+                </NavLink>
+                {userRole !== 'Mesero' && userRole !== 'Empleado' && (
+                  <NavLink to="/compras" className={navClass} onClick={closeMenu}>
+                    Compras
+                  </NavLink>
                 )}
-                <li>
-                  <Link to="/facturacion" onClick={() => setMenuOpen(false)}>Facturación</Link>
-                </li>
+                <NavLink to="/facturacion" className={navClass} onClick={closeMenu}>
+                  Facturación
+                </NavLink>
                 {userRole === 'Superadmin' && (
-                  <li>
-                    <Link to="/usuarios" onClick={() => setMenuOpen(false)}>Usuarios</Link>
-                  </li>
+                  <NavLink to="/usuarios" className={navClass} onClick={closeMenu}>
+                    Usuarios
+                  </NavLink>
                 )}
-                <li>
-                  <Link to="/reportes" onClick={() => setMenuOpen(false)}>Reportes</Link>
-                </li>
-                <li className="logout-button" onClick={handleLogout}>
-                  Cerrar sesión
-                </li>
-              </ul>
-            </div>
-            <div className="menu-hamburguesa" onClick={toggleMenu}>
+                <NavLink to="/reportes" className={navClass} onClick={closeMenu}>
+                  Reportes
+                </NavLink>
+              </nav>
+
+              <div className="logout-button" onClick={handleLogout} role="button" tabIndex={0}>
+                Cerrar sesión
+              </div>
+            </aside>
+
+            {menuOpen && <div className="sidebar-overlay" onClick={closeMenu} />}
+
+            <div
+              className="menu-hamburguesa"
+              onClick={toggleMenu}
+              role="button"
+              aria-label="Abrir menú"
+            >
               ☰
             </div>
-            <div className="content" onClick={() => setMenuOpen(false)}>
+
+            <div className="content">
               <Routes>
                 <Route
                   path="/"

@@ -1,13 +1,201 @@
+/* ============================================================
+   AREPASAURIOS POS — Sistema de diseño
+   Paleta derivada del logo: verde selva, dorado maíz, madera.
+   ============================================================ */
+
+:root {
+  /* Marca */
+  --brand-950: #0F2417;
+  --brand-900: #14301F;
+  --brand-800: #1B4229;
+  --brand-700: #245736;
+  --brand-600: #2E6B44;
+  --brand-500: #3B8456;
+  --brand-100: #DCEBE0;
+  --gold-500: #E9B44C;
+  --gold-600: #D19A2F;
+  --gold-100: #FBEFD4;
+
+  /* Neutros cálidos */
+  --cream-50: #FBF8F1;
+  --cream-100: #F4EEE1;
+  --ink-900: #1F2A22;
+  --ink-600: #5B6B5F;
+  --ink-400: #8A968C;
+  --line: #E6E0D2;
+  --surface: #FFFFFF;
+
+  /* Estado */
+  --danger: #D64545;
+  --danger-600: #B93A3A;
+  --warning: #E9A23B;
+  --success: #3B8456;
+  --info: #3B6EA5;
+
+  /* Forma y sombra */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(31, 42, 34, 0.06), 0 1px 3px rgba(31, 42, 34, 0.08);
+  --shadow-md: 0 4px 12px rgba(31, 42, 34, 0.08), 0 2px 4px rgba(31, 42, 34, 0.05);
+  --shadow-lg: 0 12px 32px rgba(31, 42, 34, 0.14);
+
+  /* Movimiento */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--cream-50);
+  color: var(--ink-900);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+h1, h2, h3 {
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: 1.6rem; font-weight: 700; margin: 0 0 16px; }
+h2 { font-size: 1.25rem; font-weight: 650; margin: 0 0 14px; }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 0 0 10px; }
+
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* ---------- Botones ---------- */
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--brand-600);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button:hover { background-color: var(--brand-700); }
+}
+
+button:active { transform: scale(0.97); }
+
+button:disabled {
+  background-color: var(--ink-400);
+  cursor: not-allowed;
+  transform: none;
+}
+
+button.primary { background-color: var(--brand-600); }
+button.edit { background-color: var(--warning); color: var(--brand-950); }
+button.delete, button.borrar-button { background-color: var(--danger); }
+button.cancelar { background-color: var(--ink-600); }
+button.editar-button { background-color: var(--warning); color: var(--brand-950); }
+button.add-button { background-color: var(--brand-600); }
+
+@media (hover: hover) and (pointer: fine) {
+  button.edit:hover, button.editar-button:hover { background-color: #d18f2c; }
+  button.delete:hover, button.borrar-button:hover { background-color: var(--danger-600); }
+  button.cancelar:hover { background-color: #4a584d; }
+}
+
+/* ---------- Campos ---------- */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+select,
+textarea {
+  font: inherit;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+  color: var(--ink-900);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px rgba(59, 132, 86, 0.18);
+}
+
+label {
+  font-weight: 600;
+  color: var(--ink-600);
+  font-size: 0.9rem;
+}
+
+/* ---------- Tablas (base global) ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th {
+  background-color: var(--brand-800);
+  color: var(--gold-100);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+
+tr:last-child td { border-bottom: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  tbody tr:hover td { background-color: var(--cream-100); }
+}
+
+/* ---------- Secciones tipo tarjeta (Dashboard usa <section>) ---------- */
+.content section {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Scrollbar sutil ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background-color: var(--ink-400);
+  border-radius: 8px;
+  border: 2px solid var(--cream-50);
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- Accesibilidad: menos movimiento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

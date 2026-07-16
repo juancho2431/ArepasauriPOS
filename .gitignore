@@ -1,0 +1,16 @@
+# Variables de entorno (contienen credenciales — nunca subirlas al repo)
+.env
+backend/.env
+frontend/.env
+frontend/.env.development
+
+# Dependencias
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build del frontend (se genera con npm run build)
+frontend/build/
+
+# Backups de base de datos
+*.sql

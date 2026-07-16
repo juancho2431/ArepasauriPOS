@@ -1,34 +1,54 @@
 // routes/login.js
+// Autenticación con contraseña hasheada (bcrypt) y emisión de token JWT.
 
-// Importamos Express para definir la ruta
 const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-// Importamos el modelo Empleado para buscar el usuario que intenta iniciar sesión
 const Empleado = require('../models/Empleado');
 
 /**
- * Ruta POST para manejar el inicio de sesión.
- * Se espera que en el body de la petición se envíen 'username' y 'password'.
+ * POST /api/login
+ * Body: { username, password }
+ * Respuesta: { token, username, role }
  */
 router.post('/', async (req, res) => {
-  // Extraemos los datos de usuario y contraseña del body
   const { username, password } = req.body;
-  
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Usuario y contraseña son requeridos' });
+  }
+
   try {
-    // Buscamos un empleado que coincida con el usuario y contraseña proporcionados
-    // Nota: En producción se debe utilizar un hash para comparar la contraseña.
-    const empleado = await Empleado.findOne({ where: { usuario: username, contraseña: password } });
-    
-    // Si no se encuentra un empleado, se retorna un error de autenticación (HTTP 401)
-    if (!empleado) {
+    // Buscamos solo por usuario; la contraseña se compara con bcrypt.
+    const empleado = await Empleado.findOne({ where: { usuario: username } });
+
+    // Comparamos contra un hash aunque el usuario no exista para no revelar
+    // qué usuarios existen (mitiga ataques de enumeración por tiempo de respuesta).
+    const hashComparar = empleado
+      ? empleado.contraseña
+      : '$2a$10$invalidinvalidinvalidinvalidinvalidinvalidinva12345678';
+
+    const passwordValida = await bcrypt.compare(password, hashComparar);
+
+    if (!empleado || !passwordValida) {
       return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
     }
-    
-    // Si se encuentra, se devuelve la información necesaria (en este caso, el nombre de usuario y el rol)
-    res.json({ username: empleado.usuario, role: empleado.rol });
+
+    // Firmamos el token con los datos mínimos necesarios.
+    const token = jwt.sign(
+      {
+        empleado_id: empleado.empleado_id,
+        usuario: empleado.usuario,
+        rol: empleado.rol,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
+    );
+
+    res.json({ token, username: empleado.usuario, role: empleado.rol });
   } catch (error) {
-    // Si ocurre algún error, se muestra en consola y se responde con un error de servidor (HTTP 500)
     console.error('Error al autenticar:', error);
     res.status(500).json({ error: 'Error al autenticar' });
   }

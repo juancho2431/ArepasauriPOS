@@ -1,83 +1,165 @@
-/* src/styles/Login.css */
+/* ============================================================
+   Login — pantalla completa con fondo de marca
+   ============================================================ */
 
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin-left: 40%;
-    background-color: #f9f9f9;
-  }
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 20px;
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(233, 180, 76, 0.22), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(59, 132, 86, 0.35), transparent 55%),
+    linear-gradient(160deg, var(--brand-950) 0%, var(--brand-800) 55%, var(--brand-700) 100%);
+}
+
+.login-form {
+  background-color: var(--surface);
+  padding: 40px 36px 32px;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+
+  /* Entrada sutil */
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+}
+
+/* Estado inicial de la entrada (navegadores modernos; en los demás simplemente aparece) */
+@starting-style {
   .login-form {
-    background-color: #ffffff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    text-align: center;
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
   }
-  
-  .login-form h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
-  }
-  
-  .input-container {
-    margin-bottom: 20px;
-  }
-  
-  .input-container input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  
-  .toggle-password {
-    background: none;
-    border: none;
-    color: #007bff;
-    font-size: 14px;
-    cursor: pointer;
-    margin-top: 5px;
-  }
-  
+}
+
+.login-logo {
+  max-width: 150px;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.login-form h2 {
+  margin: 0 0 4px;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--brand-900);
+}
+
+.login-subtitle {
+  margin: 0 0 24px;
+  font-size: 0.9rem;
+  color: var(--ink-600);
+}
+
+.input-container {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.input-container label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px; /* evita zoom automático en iOS */
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.toggle-password {
+  background: none;
+  border: none;
+  color: var(--brand-600);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  padding: 4px 6px;
+}
+
+@media (hover: hover) and (pointer: fine) {
   .toggle-password:hover {
+    background: none;
     text-decoration: underline;
   }
-  
-  button[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    background-color: #0d6efd;
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+}
+
+.login-form button[type="submit"] {
+  width: 100%;
+  padding: 13px;
+  margin-top: 6px;
+  background-color: var(--gold-500);
+  color: var(--brand-950);
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .login-form button[type="submit"]:hover {
+    background-color: var(--gold-600);
   }
-  
-  button[type="submit"]:hover {
-    background-color: #0056b3;
+}
+
+.login-form button[type="submit"]:active {
+  transform: scale(0.97);
+}
+
+.login-form button[type="submit"]:disabled {
+  background-color: var(--gold-100);
+  color: var(--ink-400);
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: var(--danger);
+  font-size: 0.88rem;
+  margin: 12px 0 0;
+}
+
+.info-message {
+  color: #7a5c14;
+  background-color: var(--gold-100);
+  border: 1px solid rgba(209, 154, 47, 0.4);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 0.88rem;
+  margin: 0 0 16px;
+}
+
+.login-footer {
+  margin-top: 20px;
+  font-size: 0.75rem;
+  color: var(--ink-400);
+}
+
+/* Tablet y escritorio: un poco más de aire */
+@media (min-width: 768px) {
+  .login-form {
+    padding: 48px 44px 36px;
+    max-width: 400px;
   }
-  
-  .error-message {
-    color: #dc3545;
-    font-size: 14px;
-    margin-top: 10px;
+}
+
+/* Móviles pequeños: tarjeta ocupa casi todo el ancho */
+@media (max-width: 400px) {
+  .login-form {
+    padding: 32px 22px 26px;
+    border-radius: 16px;
   }
-  
-@media (max-width: 768px) {
-    .login-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin-left: 0px;
-        background-color: #f9f9f9;
-      }
+  .login-logo { max-width: 120px; }
 }

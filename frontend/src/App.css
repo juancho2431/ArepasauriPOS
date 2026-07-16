@@ -1,145 +1,213 @@
-/* General Styles */
-body {
-  margin: 0;
-  font-family: 'Arial', sans-serif;
-  background-color: #f8f9fa;
-  color: #343a40;
-}
+/* ============================================================
+   Layout general: sidebar de marca + contenido
+   ============================================================ */
 
 .app-container {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
-/* Sidebar Styles */
+/* ---------- Sidebar ---------- */
 .sidebar {
   width: 250px;
-  background: linear-gradient(135deg, #4a90e2, #50a3a2);
+  background: linear-gradient(180deg, var(--brand-900) 0%, var(--brand-800) 100%);
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  padding-top: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  transform: translateX(0);
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   z-index: 1000;
+  transform: translateX(0);
+  transition: transform 240ms var(--ease-out);
+  overflow-y: auto;
 }
 
 .logo-container {
   text-align: center;
-  padding: 20px;
+  padding: 20px 16px 8px;
 }
 
 .logo {
-  max-width: 80%;
+  max-width: 72%;
   height: auto;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
 }
 
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* Chip de usuario */
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 14px 14px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
 }
 
-.sidebar ul li {
-  margin: 15px 0;
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--gold-500);
+  color: var(--brand-950);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
 }
 
-.sidebar ul li a {
-  color: #ffffff;
+.user-info {
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--gold-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Navegación */
+.sidebar nav {
+  flex: 1;
+  padding: 4px 10px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.82);
   text-decoration: none;
-  font-size: 18px;
-  padding: 10px 20px;
-  display: block;
-  transition: background 0.3s ease;
+  font-size: 0.98rem;
+  font-weight: 500;
+  padding: 11px 14px;
+  margin: 2px 0;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
+  transition: background-color 150ms ease, color 150ms ease;
 }
 
-.sidebar ul li a:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
+@media (hover: hover) and (pointer: fine) {
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
 }
 
+.nav-link.active {
+  background: rgba(233, 180, 76, 0.14);
+  border-left-color: var(--gold-500);
+  color: var(--gold-500);
+  font-weight: 600;
+}
+
+/* Cerrar sesión */
 .logout-button {
-  background: #dc3545;
-  color: #ffffff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  font-size: 16px;
-  width: 70%;
-  margin: 10px auto;
+  margin: 14px;
+  padding: 11px;
   text-align: center;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #ffd7d7;
+  background: rgba(214, 69, 69, 0.18);
+  border: 1px solid rgba(214, 69, 69, 0.4);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 160ms var(--ease-out);
+  list-style: none;
 }
 
-.logout-button:hover {
-  background: #c82333;
+@media (hover: hover) and (pointer: fine) {
+  .logout-button:hover { background: rgba(214, 69, 69, 0.35); color: #fff; }
 }
 
-/* Hamburger Menu */
+.logout-button:active { transform: scale(0.97); }
+
+/* ---------- Botón hamburguesa ---------- */
 .menu-hamburguesa {
   display: none;
-  font-size: 24px;
-  cursor: pointer;
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: 14px;
+  left: 14px;
   z-index: 1100;
-  color: #343a40;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--brand-900);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
 }
 
-/* Content Styles */
+/* Fondo oscuro al abrir menú en móvil */
+.sidebar-overlay {
+  display: none;
+}
+
+/* ---------- Contenido ---------- */
 .content {
   flex: 1;
   margin-left: 250px;
-  padding: 20px;
-  overflow-y: auto;
-  transition: margin-left 0.3s ease;
+  padding: 24px;
+  min-width: 0;
 }
 
-button {
-  background: #50a3a2;
-  color: #ffffff;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
+/* ============ Tablet ============ */
+@media (max-width: 1024px) {
+  .sidebar { width: 220px; }
+  .content { margin-left: 220px; padding: 20px; }
 }
 
-button:hover {
-  background: #4a90e2;
-}
-
-/* Responsive Design */
+/* ============ Móvil ============ */
 @media (max-width: 768px) {
   .sidebar {
+    width: min(280px, 84vw);
     transform: translateX(-100%);
+    box-shadow: none;
   }
+
   .sidebar.open {
     transform: translateX(0);
+    box-shadow: var(--shadow-lg);
   }
-  .menu-hamburguesa {
+
+  .menu-hamburguesa { display: flex; }
+
+  .sidebar-overlay {
     display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 36, 23, 0.45);
+    z-index: 999;
+    opacity: 1;
+    transition: opacity 200ms ease;
   }
+
   .content {
     margin-left: 0;
-    padding: 20px 10px;
+    padding: 68px 12px 20px; /* espacio para el botón hamburguesa */
   }
 }
 
 @media (max-width: 480px) {
-  .sidebar ul li a {
-    font-size: 16px;
-    padding: 8px;
-  }
-  .content {
-    padding: 10px 5px;
-  }
+  .content { padding: 64px 8px 16px; }
 }

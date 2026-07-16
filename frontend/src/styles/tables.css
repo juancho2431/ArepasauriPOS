@@ -1,62 +1,70 @@
+/* ============================================================
+   Tablas compartidas (usa los tokens de index.css)
+   ============================================================ */
+
 .table-container {
-    margin: 20px 0;
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
+  margin: 20px 0;
+  padding: 20px;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-container table {
+  margin: 8px 0 0;
+}
+
+.editar-button,
+.borrar-button {
+  padding: 7px 12px;
+  margin: 3px;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+.add-button {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    padding: 12px;
   }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-  }
-  
   th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+    padding: 9px 10px;
+    font-size: 0.88rem;
   }
-  
-  th {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  .editar-button {
-    padding: 6px 12px;
-    margin: 5px;
-    background-color: #dd7310;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .editar-button:hover {
-    background-color: #a5550a;
-  }
-  
-  .borrar-button {
-    padding: 6px 12px;
-    margin: 5px;
-    background-color: #dd1010;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .borrar-button:hover {
-    background-color: #770303;
-  }
-  .add-button {
-    margin-bottom: 20px;
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  .add-button:hover {
-    background-color: #45a049;
-  }
-  
+}
+
+/* ---------- Modal de confirmación ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 36, 23, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+  padding: 16px;
+}
+
+.modal-content {
+  background-color: var(--surface);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
